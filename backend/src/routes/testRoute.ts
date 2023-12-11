@@ -1,10 +1,11 @@
-import express from "express";
-import fs from "fs";
-import { TestController } from "../controllers/testController";
+import express from 'express'
+import fs from 'fs'
 
-const router = express.Router();
+import type { TestController } from '../controllers/testController'
+
+const router = express.Router()
 
 export const testRoutes = (controller: TestController): express.Router => {
-  router.get("/init", controller.init);
-  return router;
-};
+  router.get('/init', controller.init)
+  return router
+}
