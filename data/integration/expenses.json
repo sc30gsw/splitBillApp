@@ -1,1 +1,1 @@
-[]
+[{"groupName":"group1","expenseName":"ランチ","payer":"一郎","amount":1000},{"groupName":"group2","expenseName":"ディナー","payer":"太郎","amount":3000},{"groupName":"group1","expenseName":"旅行","payer":"二郎","amount":10000}]
