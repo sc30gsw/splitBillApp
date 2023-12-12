@@ -1,23 +1,25 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  Button,
+  FormControl,
   FormErrorMessage,
   FormLabel,
-  FormControl,
   Input,
-  Button,
   VStack,
-} from "@chakra-ui/react";
-import { groupSchema } from "../../schema/group";
+} from '@chakra-ui/react'
+import { zodResolver } from '@hookform/resolvers/zod'
+import React from 'react'
+import { useForm } from 'react-hook-form'
+
+import { groupSchema } from '../../schema/group'
 
 // フォームで使用する変数の型を定義
 export interface formInputs {
-  name: string;
-  members: string;
+  name: string
+  members: string
 }
 
 interface CreateGroupFormProps {
-  onSubmit: (data: formInputs) => Promise<void>;
+  onSubmit: (data: formInputs) => Promise<void>
 }
 
 const CreateGroupForm: React.FC<CreateGroupFormProps> = ({ onSubmit }) => {
@@ -29,27 +31,27 @@ const CreateGroupForm: React.FC<CreateGroupFormProps> = ({ onSubmit }) => {
     reset,
   } = useForm<formInputs>({
     resolver: zodResolver(groupSchema),
-  });
+  })
 
   // フォームが送信されたときの処理
   const onSubmitForm = handleSubmit(async (data) => {
     try {
-      await onSubmit(data);
-      console.info("登録成功");
-      reset();
+      await onSubmit(data)
+      console.info('登録成功')
+      reset()
     } catch (e) {
-      console.error(e);
-      window.alert("登録に失敗");
+      console.error(e)
+      window.alert('登録に失敗')
     }
-  });
+  })
 
   return (
-    <VStack maxW={"600px"}>
-      <form onSubmit={onSubmitForm} style={{ width: "60%" }}>
+    <VStack maxW={'600px'}>
+      <form onSubmit={onSubmitForm} style={{ width: '60%' }}>
         {/* 名前 */}
         <FormControl mb={5} isInvalid={Boolean(errors.name)}>
           <FormLabel htmlFor="name">グループ名</FormLabel>
-          <Input id="name" placeholder="旅行" {...register("name")} />
+          <Input id="name" placeholder="旅行" {...register('name')} />
           <FormErrorMessage>
             {errors.name && errors.name.message}
           </FormErrorMessage>
@@ -60,7 +62,7 @@ const CreateGroupForm: React.FC<CreateGroupFormProps> = ({ onSubmit }) => {
           <Input
             id="members"
             placeholder="太郎, 花子"
-            {...register("members")}
+            {...register('members')}
           />
           <FormErrorMessage>
             {errors.members && errors.members.message}
@@ -70,13 +72,13 @@ const CreateGroupForm: React.FC<CreateGroupFormProps> = ({ onSubmit }) => {
           colorScheme="green"
           isLoading={isSubmitting}
           type="submit"
-          w={"full"}
+          w={'full'}
         >
           グループを作成
         </Button>
       </form>
     </VStack>
-  );
-};
+  )
+}
 
-export default CreateGroupForm;
+export default CreateGroupForm
