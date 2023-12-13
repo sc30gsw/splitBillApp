@@ -1,0 +1,112 @@
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import CreateExpenseForm from './CreateExpenseForm'
+import { Group } from '../../type'
+
+const mockOnSubmit = jest.fn()
+const user = userEvent.setup()
+
+describe('CreateExpenseForm', () => {
+  let group: Group;
+
+  beforeEach(() => {
+    group = { name: 'testGroup1', members: ['Alice', 'Bob'] }
+    render(<CreateExpenseForm group={group} onSubmit={mockOnSubmit} />)
+  })
+
+  it('フォームの内容がSubmitされる', async() => {
+    const expenseNameInput = screen.getByRole('textbox', { name: '支出名' })
+    const amountInput = screen.getByRole('spinbutton', { name: '金額' })
+    const payerInput = screen.getByRole('combobox', { name: '支払うメンバー' })
+    const button = screen.getByRole('button', { name: '支出を登録' })
+    expect(expenseNameInput).toHaveValue('')
+    expect(amountInput).toHaveValue(null)
+    expect(payerInput).toHaveValue('')
+    await user.type(expenseNameInput, 'expense1')
+    await user.type(amountInput, '1000')
+    await user.selectOptions(payerInput, group.members[0])
+    expect(expenseNameInput).toHaveValue('expense1')
+    expect(amountInput).toHaveValue(1000)
+    expect(payerInput).toHaveValue(group.members[0])
+    expect(payerInput).not.toHaveValue(group.members[1])
+    expect((screen.getByRole('option', { name: group.members[0] }) as HTMLOptionElement).selected).toBe(true)
+    expect((screen.getByRole('option', { name: group.members[1] }) as HTMLOptionElement).selected).toBe(false)
+    await user.click(button)
+    expect(mockOnSubmit).toHaveBeenCalledWith({ groupName: group.name, expenseName: 'expense1', amount: 1000, payer: group.members[0] })
+    await waitFor(() => {
+      expect(expenseNameInput).toHaveValue('')
+      expect(amountInput).toHaveValue(null)
+      expect(payerInput).toHaveValue('')
+    })
+  })
+
+  it('初期状態でSubmitするとバリデーションエラーが発生する', async () => {
+    const expenseNameInput = screen.getByRole('textbox', { name: '支出名' })
+    const amountInput = screen.getByRole('spinbutton', { name: '金額' })
+    const payerInput = screen.getByRole('combobox', { name: '支払うメンバー' })
+    const button = screen.getByRole('button', { name: '支出を登録' })
+    expect(expenseNameInput).toHaveValue('')
+    expect(amountInput).toHaveValue(null)
+    expect(payerInput).toHaveValue('')
+    await user.click(button)
+    expect(screen.getByText('支出名は必須です')).toBeInTheDocument()
+    expect(screen.getByText('支払うメンバーは必須です')).toBeInTheDocument()
+    expect(screen.getByText('金額は1円以上の整数で必須です')).toBeInTheDocument()
+  })
+
+  it('金額を0でSubmitするとバリデーションエラーが発生する', async () => {
+    const expenseNameInput = screen.getByRole('textbox', { name: '支出名' })
+    const amountInput = screen.getByRole('spinbutton', { name: '金額' })
+    const payerInput = screen.getByRole('combobox', { name: '支払うメンバー' })
+    const button = screen.getByRole('button', { name: '支出を登録' })
+    expect(expenseNameInput).toHaveValue('')
+    expect(amountInput).toHaveValue(null)
+    expect(payerInput).toHaveValue('')
+    await user.type(expenseNameInput, 'expense1')
+    await user.type(amountInput, '0')
+    await user.selectOptions(payerInput, group.members[0])
+    expect(expenseNameInput).toHaveValue('expense1')
+    expect(amountInput).toHaveValue(0)
+    expect(payerInput).toHaveValue(group.members[0])
+    expect(payerInput).not.toHaveValue(group.members[1])
+    expect((screen.getByRole('option', { name: group.members[0] }) as HTMLOptionElement).selected).toBe(true)
+    expect((screen.getByRole('option', { name: group.members[1] }) as HTMLOptionElement).selected).toBe(false)
+    await user.click(button)
+    expect(screen.getByText('金額は1円以上の整数で必須です')).toBeInTheDocument()
+    expect(amountInput).toHaveValue(0)
+  })
+
+  it('Submit時にエラーが発生すると、alertが表示される', async () => {
+    const spyAlert = jest.spyOn(window, 'alert')
+    spyAlert.mockImplementationOnce(() => {})
+    mockOnSubmit.mockRejectedValue(new Error('Something went wrong'))
+    const expenseNameInput = screen.getByRole('textbox', { name: '支出名' })
+    const amountInput = screen.getByRole('spinbutton', { name: '金額' })
+    const payerInput = screen.getByRole('combobox', { name: '支払うメンバー' })
+    const button = screen.getByRole('button', { name: '支出を登録' })
+    expect(expenseNameInput).toHaveValue('')
+    expect(amountInput).toHaveValue(null)
+    expect(payerInput).toHaveValue('')
+    await user.type(expenseNameInput, 'expense1')
+    await user.type(amountInput, '1000')
+    await user.selectOptions(payerInput, group.members[0])
+    expect(expenseNameInput).toHaveValue('expense1')
+    expect(amountInput).toHaveValue(1000)
+    expect(payerInput).toHaveValue(group.members[0])
+    expect(payerInput).not.toHaveValue(group.members[1])
+    expect((screen.getByRole('option', { name: group.members[0] }) as HTMLOptionElement).selected).toBe(true)
+    expect((screen.getByRole('option', { name: group.members[1] }) as HTMLOptionElement).selected).toBe(false)
+    await user.click(button)
+    expect(mockOnSubmit).toHaveBeenCalledWith({ groupName: group.name, expenseName: 'expense1', amount: 1000, payer: group.members[0] })
+    await waitFor(() => expect(spyAlert).toHaveBeenCalledWith('登録に失敗'))
+    await waitFor(() => {
+      expect(expenseNameInput).toHaveValue('expense1')
+      expect(amountInput).toHaveValue(1000)
+      expect(payerInput).toHaveValue(group.members[0])
+      expect(payerInput).not.toHaveValue(group.members[1])
+      expect((screen.getByRole('option', { name: group.members[0] }) as HTMLOptionElement).selected).toBe(true)
+      expect((screen.getByRole('option', { name: group.members[1] }) as HTMLOptionElement).selected).toBe(false)
+    })
+    spyAlert.mockReset()
+  })
+})
