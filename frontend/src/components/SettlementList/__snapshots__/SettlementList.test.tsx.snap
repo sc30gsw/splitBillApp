@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SettlementList Snapshot test 1`] = `
+<div>
+  <div
+    class="chakra-stack css-1anxrbq"
+  >
+    <p
+      class="chakra-text css-x39wmu"
+    >
+      清算方法
+    </p>
+    <ul
+      class="css-1s6xsev"
+      role="list"
+    >
+      <li
+        class="css-1v5z18m"
+      >
+        <div
+          class="chakra-stack css-bot922"
+        >
+          <div
+            class="css-0"
+          >
+            二郎
+             → 
+            一郎
+          </div>
+          <div
+            class="css-0"
+          >
+            1000
+            円
+          </div>
+        </div>
+      </li>
+      <li
+        class="css-1v5z18m"
+      >
+        <div
+          class="chakra-stack css-bot922"
+        >
+          <div
+            class="css-0"
+          >
+            三郎
+             → 
+            一郎
+          </div>
+          <div
+            class="css-0"
+          >
+            1000
+            円
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+`;
