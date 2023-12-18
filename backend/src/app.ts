@@ -30,20 +30,15 @@ export function createApp(
   const expenseRepository = new ExpenseRepository(expenseDataPath)
   const expenseService = new ExpenseService(expenseRepository, groupService)
   const expenseController = new ExpenseController(expenseService)
+  const testController = new TestController()
 
   app.use('/', groupRoutes(groupController))
   app.use('/', expenseRoutes(expenseController))
-  app.use(
-    (
-      err: Error,
-      req: express.Request,
-      res: express.Response,
-      next: express.NextFunction,
-    ) => {
-      console.error(err.message)
-      res.status(500).send('サーバー内部でエラーが発生しました')
-    },
-  )
+  app.use('/', testRoutes(testController))
+  app.use((err: Error, req: express.Request, res: express.Response) => {
+    console.error(err.message)
+    res.status(500).send('サーバー内部でエラーが発生しました')
+  })
 
   if (process.env.NODE_ENV === 'TEST') {
     app.use('/', testRoutes(new TestController()))
